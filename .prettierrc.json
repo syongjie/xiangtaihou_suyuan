@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json.schemastore.org/prettierrc",
+  "semi": false,
+  "singleQuote": true,
+  "printWidth": 300,
+  "singleAttributePerLine": true,
+  "object-curly-newline": {
+    "ObjectExpression": { "minProperties": 1, "multiline": true },
+    "ObjectPattern": { "minProperties": 1, "multiline": true }
+  }
+}

@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Exit on any error
+set -e
+
+echo "Installing dependencies..."
+pnpm install
+
+echo "Building project..."
+pnpm run build
+
+echo "Backing up current site..."
+sudo cp -r /var/www/bitcoinbanks.biz/ /var/www/bitcoinbanks.biz.backup.$(date +%Y%m%d_%H%M%S)
+
+echo "Removing old site..."
+sudo rm -fr /var/www/bitcoinbanks.biz/
+
+echo "Deploying new build..."
+sudo mv dist /var/www/bitcoinbanks.biz
+
+echo "Deployment complete!"
