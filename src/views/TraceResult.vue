@@ -81,7 +81,7 @@
               <img
                 v-if="item.value === '点击查看'"
                 style="width: 20px; position: relative; top: 5px;"
-                src="/public/imgs/image-02@3x.png"
+                src="/imgs/image-02@3x.png"
                 alt=""
               />
             </div>
@@ -108,7 +108,7 @@
         <div class="company-info">
           <div class="company-media">
             <!-- 公司宣传：视频 / 图片 通用 -->
-            <div class="company-media" :class="{ video: companyMedia.type === 'video' }">
+            <div class="media-content" :class="{ video: companyMedia.type === 'video' }">
               <!-- ① 视频模式 -->
               <template v-if="companyMedia.type === 'video'">
                 <video
@@ -122,7 +122,7 @@
                 ></video>
                 <!-- 播放按钮覆盖层 -->
                 <div v-if="!videoPlaying" class="play-overlay" @click="playCompanyVideo">
-                  <img src="/public/imgs/play-01@3x.png" class="play-icon" />
+                  <img src="/imgs/play-01@3x.png" class="play-icon" />
                 </div>
               </template>
 
@@ -141,16 +141,16 @@
                 <img
                   v-if="item.label === '企业名称'"
                   style="width: 20px; position: relative; top: -3px;"
-                  src="/public/imgs/bar-group-03@3x.png"
+                  src="/imgs/bar-group-03@3x.png"
                   alt=""
                 />
                 <img
                   v-else-if="item.label === '统一社会信用代码'"
                   style="width: 20px; position: relative; top: -3px;"
-                  src="/public/imgs/shield-check@3x.png"
+                  src="/imgs/shield-check@3x.png"
                   alt=""
                 />
-                <img v-else style="width: 20px; position: relative; top: -3px;" src="/public/imgs/phone-call-01@3x.png" alt="" />
+                <img v-else style="width: 20px; position: relative; top: -3px;" src="/imgs/phone-call-01@3x.png" alt="" />
                 <div class="info-label">{{ item.label }}</div>
               </div>
               <div class="info-value" style="text-align: left;">{{ item.value }}</div>
@@ -159,7 +159,7 @@
 
           <div class="qualification-section">
             <div style="display: flex;">
-              <img style="width: 30px; position: relative; top: -5px;" src="/public/imgs/Frame@3x(1).png" alt="" />
+              <img style="width: 30px; position: relative; top: -5px;" src="/imgs/Frame@3x(1).png" alt="" />
               <h4>公司资质</h4>
             </div>
             <div class="qualification-grid">
@@ -276,14 +276,14 @@
           <div class="interaction-buttons">
             <label class="interaction-label">
               <input type="radio" name="recommend" value="推荐" v-model="recommendType" />
-              <img v-if="recommendType === '推荐'" style="width: 20px;" src="/public/imgs/1.默认@3x.png" alt="" />
-              <img v-else style="width: 20px;" src="/public/imgs/1.默认@3x(1).png" alt="" />
+              <img v-if="recommendType === '推荐'" style="width: 20px;" src="/imgs/1.默认@3x.png" alt="" />
+              <img v-else style="width: 20px;" src="/imgs/1.默认@3x(1).png" alt="" />
               <span>推荐</span>
             </label>
             <label class="interaction-label">
               <input type="radio" name="recommend" value="不推荐" v-model="recommendType" />
-              <img v-if="recommendType === '不推荐'" style="width: 20px;" src="/public/imgs/1.默认@3x.png" alt="" />
-              <img v-else style="width: 20px;" src="/public/imgs/1.默认@3x(1).png" alt="" />
+              <img v-if="recommendType === '不推荐'" style="width: 20px;" src="/imgs/1.默认@3x.png" alt="" />
+              <img v-else style="width: 20px;" src="/imgs/1.默认@3x(1).png" alt="" />
               不推荐
             </label>
           </div>
@@ -298,11 +298,24 @@
             <div class="char-count">{{ commentText.length }}/500</div>
           </div>
 
+          <!-- 上传视频 -->
           <div class="video-upload">
             <p class="upload-hint">支持上传视频，且时长不得超过30s</p>
-            <div class="upload-btn" @click="handleVideoUpload">
-              <img style="width: 30px;" src="/public/imgs/play-01@3x.png" alt="" />
-              <div>上传视频</div>
+
+            <!-- 已选预览 -->
+            <video v-if="uploadVideoUrl" :src="uploadVideoUrl" controls class="upload-preview"></video>
+
+            <!-- 选择按钮 -->
+            <input
+              ref="videoFile"
+              type="file"
+              accept="video/*"
+              style="display: none"
+              @change="onVideoSelect"
+            />
+            <div class="upload-btn" @click="chooseVideo">
+              <img style="width: 30px;" src="/imgs/play-01@3x.png" alt="" />
+              <div>{{ uploadVideoUrl ? '重新选择' : '上传视频' }}</div>
             </div>
           </div>
 
@@ -324,7 +337,13 @@
 </template>
 
 <script setup>
+import { traceService , commentService } from '@/api/index'
 import { getCurrentInstance, ref, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+const productId = route.params.productId // ① 路径参数 /trace/:productId
+// 若用 query 形式（?productId=123）则写 route.query.productId
 
 /* ---------- 基础能力 ---------- */
 const { proxy } = getCurrentInstance()
@@ -340,9 +359,9 @@ const suggestionText = ref('')
 
 /* 产品相册 */
 const productGallery = ref([
-  '/public/imgs/Group17@3x.png',
-  '/public/imgs/Rectangle12404@3x.png',
-  '/public/imgs/IMG_4457@3x.png'
+  '/imgs/Group17@3x.png',
+  '/imgs/Rectangle12404@3x.png',
+  '/imgs/IMG_4457@3x.png'
 ])
 const currentImageIndex = ref(0)
 const productImage = ref(productGallery.value[0])
@@ -350,8 +369,8 @@ const productImage = ref(productGallery.value[0])
 /* 公司宣传媒体 */
 const companyMedia = ref({
   type: 'video',          // 'video' | 'image'
-  url: '/public/videos/company.mp4',   // 视频地址 or 图片地址
-  poster: '/public/imgs/image28@3x.png' // 仅视频有效
+  url: '/public/ff934ab7788ffd0ea4bb20f9c78fc3c6.mp4',   // 视频地址 or 图片地址
+  poster: '/imgs/image28@3x.png', // 仅视频有效
 })
 
 /* 业务数据 */
@@ -359,7 +378,8 @@ const productData = ref({
   productName: '八不加精品酱牛肉',
   shelfLife: '270天',
   netWeight: '150g/袋',
-  videoUrl: '/public/videos/xxx.mp4',   // ① 视频地址
+  videoUrl: '/public/ff934ab7788ffd0ea4bb20f9c78fc3c6.mp4',   // ① 视频地址
+
   productDetails: [
     { label: '产品认证', value: '地理标志' },
     { label: '产品批次', value: '20231022A01' },
@@ -372,11 +392,11 @@ const productData = ref({
     { label: '食用方法', value: '温火慢炖' }
   ],
   inspectionReports: [
-    { imgUrl: '/public/imgs/Group19120@3x.png' },
-    { imgUrl: '/public/imgs/image26(3).png' },
-    { imgUrl: '/public/imgs/image26@2x(3).png' },
-    { imgUrl: '/public/imgs/image26@3x(2).png' },
-    { imgUrl: '/public/imgs/image26@3x.png' }
+    { imgUrl: '/imgs/Group19120@3x.png' },
+    { imgUrl: '/imgs/image26(3).png' },
+    { imgUrl: '/imgs/image26@2x(3).png' },
+    { imgUrl: '/imgs/image26@3x(2).png' },
+    { imgUrl: '/imgs/image26@3x.png' }
   ],
   companyInfo: {
     fullName: '香港祥泰厚副食品集团有限公司',
@@ -388,9 +408,9 @@ const productData = ref({
     legalRepresentative: ''
   },
   companyQualifications: [
-    { imgUrl: '/public/imgs/IMG_4456@3x.png' },
-    { imgUrl: '/public/imgs/IMG_4457@3x.png' },
-    { imgUrl: '/public/imgs/Group19126@3x.png' }
+    { imgUrl: '/imgs/IMG_4456@3x.png' },
+    { imgUrl: '/imgs/IMG_4457@3x.png' },
+    { imgUrl: '/imgs/Group19126@3x.png' }
   ],
   manufacturerInfo: [
     { label: '企业名称', value: '香港祥泰厚副食品集团有限公司' },
@@ -455,10 +475,74 @@ const viewQualification = (_, idx) => {
 /* ---------- 业务函数 ---------- */
 const switchTab = (tabId) => {
   activeTab.value = tabId
-  document.getElementById(tabId)?.scrollIntoView({ behavior: 'smooth' })
+  // 获取目标元素
+  const targetElement = document.getElementById(tabId)
+  if (targetElement) {
+    // 保存原始body的padding-top
+    const originalPadding = document.body.style.paddingTop;
+    
+    // 临时添加200px的padding-top到body，这样scrollIntoView会考虑这个偏移
+    document.body.style.paddingTop = '200px';
+    
+    // 使用scrollIntoView滚动到目标元素
+    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    
+    // 滚动完成后移除临时padding
+    setTimeout(() => {
+      document.body.style.paddingTop = originalPadding;
+    }, 1000); // 与滚动动画时间匹配
+  }
 }
 
-const handleVideoUpload = () => alert('视频上传功能')
+/* 上传相关 */
+const videoFile   = ref(null)        // file input ref
+const uploadVideoUrl = ref('')       // 本地预览地址
+
+const chooseVideo = () => videoFile.value.click()
+
+const onVideoSelect = (e) => {
+  const file = e.target.files[0]
+  if (!file) return
+
+  const video = document.createElement('video')
+  video.preload = 'metadata'
+  video.onloadedmetadata = () => {
+    window.URL.revokeObjectURL(video.src) // 释放内存
+    if (video.duration > 30) {
+      alert('视频时长不能超过 30 秒')
+      uploadVideoUrl.value = ''
+      return
+    }
+    // 通过校验
+    uploadVideoUrl.value = URL.createObjectURL(file)
+  }
+  video.src = URL.createObjectURL(file)
+}
+
+// const onVideoSelect = async (e) => {
+//   const file = e.target.files[0]
+//   if (!file) return
+
+//   /* 时长 & 大小校验 */
+//   const duration = await getVideoDuration(file)
+//   if (duration > 30) return alert('视频时长不能超过 30 秒')
+//   if (file.size > 50 * 1024 * 1024) return alert('视频大小不能超过 50 MB')
+
+//   /* 构造 FormData */
+//   const fd = new FormData()
+//   fd.append('video', file) // 字段名和后端约定好
+
+//   try {
+//     /* 直传后端 */
+//     const { data } = await axios.post('/api/upload/video', fd, {
+//       headers: { 'Content-Type': 'multipart/form-data' },
+//       onUploadProgress: (p) => console.log('上传进度', ((p.loaded / p.total) * 100).toFixed(0) + '%')
+//     })
+//     uploadVideoUrl.value = data.url // 后端返回的可访问地址
+//   } catch (e) {
+//     alert('上传失败：' + e.message)
+//   }
+// }
 
 const submitComment = async () => {
   if (!commentText.value.trim()) return alert('请输入评价内容')
@@ -467,7 +551,33 @@ const submitComment = async () => {
   alert('评价提交成功！')
   commentText.value = suggestionText.value = ''
   submitting.value = false
+
+  // if (!commentText.value.trim()) return proxy.$toast('请输入评价内容')
+
+  // submitting.value = true
+  // try {
+  //   await commentService.submitComment({
+  //     productId: productId,              // 路由里取到的
+  //     recommend: recommendType.value,    // '推荐' | '不推荐'
+  //     comment: commentText.value,
+  //     suggestion: suggestionText.value,
+  //     video: videoFile.value?.files?.[0] || null // 原始 File 对象
+  //   })
+
+  //   proxy.$toast('提交成功，感谢您的评价！')
+  //   // 重置表单
+  //   commentText.value = ''
+  //   suggestionText.value = ''
+  //   recommendType.value = '推荐'
+  //   uploadVideoUrl.value = ''
+  //   videoFile.value = null
+  // } catch (e) {
+  //   proxy.$toast(e.message || '提交失败，请重试')
+  // } finally {
+  //   submitting.value = false
+  // }
 }
+
 
 const fetchProductData = async () => {
   loading.value = true
@@ -479,6 +589,16 @@ const fetchProductData = async () => {
   } finally {
     loading.value = false
   }
+  // loading.value = true
+  // error.value  = null
+  // try {
+  //   const data = await traceService.getProductTrace(productId)
+  //   productData.value = data          // ② 直接赋值，字段已对齐
+  // } catch (e) {
+  //   error.value = e.message || '商品信息获取失败'
+  // } finally {
+  //   loading.value = false
+  // }
 }
 
 /* ---------- 生命周期 ---------- */
@@ -486,6 +606,13 @@ onMounted(fetchProductData)
 </script>
 
 <style scoped>
+.upload-preview {
+  width: 100%;
+  max-height: 200px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
 .video-player-section {
   margin: 15px;
   border-radius: 14px;

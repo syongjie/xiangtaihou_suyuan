@@ -12,47 +12,7 @@
       </div>
       <div class="flex items-center">
         <div class="flex items-center mr-[20px]">
-          <el-dropdown trigger="click">
-            <img
-              class="w-35px mr-5px cursor-pointer"
-              src="@/assets/NEW_imgs/my_Profit/组5154@2x.png"
-              alt=""
-            />
-            <template #dropdown>
-              <el-dropdown-menu>
-                <div class="p-4">
-                  <div v-for="item in langList" :key="item.key" class="mb-2 last:mb-0">
-                    <div  class="flex items-center" @click="changeLanguage(item.key)">
-                      <img
-                          :src="item.icon"
-                          alt="lang"
-                          class="w-[18px] h-[18px] mr-[8px]"
-                        />
-                        <span>{{ item.name }}</span>
-                    </div>
-                  </div>
-                </div>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-          <div class="max-w-[160px]">
-            <div
-              class="flex justify-center items-center border-solid border-2 border-[#2B2F36] px-[20px] h-[40px] rounded-[14px] cursor-pointer min-w-[120px]"
-            >
-              <span
-                class="c-[#151A30] tracking-[2px] text-16px whitespace-nowrap"
-                v-if="!useAddressCounter.userBTCAddress"
-                @click="onClickLogo"
-                >{{ t('header.connect_wallet') }}</span
-              >
-              <span
-                class="c-[#151A30] tracking-[2px] text-16px whitespace-nowrap"
-                v-if="useAddressCounter.userBTCAddress"
-                @click="LOGOOUT"
-                >{{ formatStringWithPlaceholder(walletAddres) }}</span
-              >
-            </div>
-          </div>
+          <!-- 用户相关功能 -->
         </div>
         <img
           @click="drawerVisible = true"
@@ -64,7 +24,7 @@
       </div>
     </div>
   </div>
-  <el-drawer v-model="drawerVisible" direction="rtl" class="bg-[##ffffff]" size="50%">
+  <el-drawer v-model="drawerVisible" direction="rtl" class="bg-[#ffffff]" size="50%">
     <ul class="flex flex-col">
       <li
         v-for="v in navList"
@@ -109,35 +69,18 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue'
-import useWeb3 from '@/hooks/useWeb3.js'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Fold } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
-import { ElMessageBox, ElLoading } from 'element-plus'
-import { useAddressCounterStore } from '@/stores/user.js'
 
 defineOptions({
   name: 'VHeader',
 })
 
-const useAddressCounter = useAddressCounterStore()
 const router = useRouter()
-const loading = ref(false)
 const drawerVisible = ref(false)
-
-const { captionAccount, contractLogin, formatStringWithPlaceholder } = useWeb3()
-const walletAddres = computed(() => {
-  return useAddressCounter.userBTCAddress
-})
 const { t, locale } = useI18n()
-const maskString = (str) => {
-  if (str.length <= 8) {
-    return str
-  }
-  const masked = '...' + str.slice(-4)
-  return masked
-}
 const navKey = ref('1')
 const navList = computed(() => {
   return [
@@ -204,27 +147,11 @@ const navList = computed(() => {
   ]
 })
 
-const onClickLogo = async () => {
-  await contractLogin()
-}
 const onClick = (item) => {
   if (!item.path) return
   drawerVisible.value = false
   navKey.value = item.key
   router.push(item.path)
-}
-
-const LOGOOUT = async () => {
-  ElMessageBox.confirm(t('header.logout_confirm'), '', {
-    confirmButtonText: t('header.logout_ok'),
-    cancelButtonText: t('header.logout_cancel'),
-    type: 'warning',
-  })
-    .then(() => {
-      useAddressCounter.setLogoout()
-      window.localStorage.clear()
-    })
-    .catch(() => {})
 }
 
 const langList = [
@@ -258,17 +185,8 @@ const changeLanguage = (lang) => {
   localStorage.setItem('longe-vity-locale', lang)
 }
 
-onMounted(async () => {
-  if (!useAddressCounter.userBTCAddress) {
-    const loadingInstance = ElLoading.service({
-      fullscreen: true,
-      text: 'Loading...',
-      background: 'rgba(122, 122, 122, 0.8)',
-    })
-    await contractLogin()
-    loadingInstance.close()
-    location.reload()
-  }
+onMounted(() => {
+  // 组件挂载后的初始化代码
 })
 </script>
 

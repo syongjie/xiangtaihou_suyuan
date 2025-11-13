@@ -14,17 +14,19 @@ import TraceResult from '../views/TraceResult.vue'
 const routes = [
   {
     path: '/',
-    redirect: '/trace/NX20230615' // 默认重定向到示例产品
+    name: 'TraceResult',
+    component: TraceResult,
+    props: { productId: 'NX20230615' } // 设置默认产品ID作为首页
   },
   {
     path: '/trace/:productId',
-    name: 'TraceResult',
+    name: 'TraceResultWithId',
     component: TraceResult,
     props: true
   },
   {
     path: '/:pathMatch(.*)*', // 404 页面处理
-    redirect: '/'
+    redirect: '/'  
   }
 ]
 

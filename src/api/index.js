@@ -35,3 +35,27 @@ export const traceService = {
     return await response.json();
   }
 };
+
+export const commentService = {
+  // 提交评价
+  async submitComment (payload) {
+    const formData = new FormData()
+    // 普通字段
+    formData.append('productId', payload.productId)
+    formData.append('recommend', payload.recommend) // '推荐' | '不推荐'
+    formData.append('comment', payload.comment)
+    formData.append('suggestion', payload.suggestion)
+    // 视频文件（可能为空）
+    if (payload.video) {
+      formData.append('video', payload.video)
+    }
+
+    return fetch(`${baseURL}/comment`, {
+      method: 'POST',
+      body: formData
+    }).then(res => {
+      if (!res.ok) throw new Error('提交失败')
+      return res.json()
+    })
+  }
+}

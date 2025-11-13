@@ -16,43 +16,19 @@
           </li>
         </ul>
         <img src="@/assets/imgs/language.png" class="w-[16px] h-[16px] cursor-pointer" alt="" />
-        <div
-          class=" flex justify-center items-center bg-[#FF8E25] px-[36px] h-[40px] rounded-[8px] cursor-pointer ml-[30px]">
-          <span class="c-white tracking-[2px] " v-if="!useAddressCounter.userPrincipal" @click="LOGO">连接钱包</span>
-          <span class="c-white tracking-[2px]" v-if="useAddressCounter.userPrincipal" @click="LOGOOUT">{{
-            formatStringWithPlaceholder(walletAddres) }}</span>
-        </div>
       </div>
     </div>
   </div>
-  <VWalletDialog ref="walletDialogRef" />
 </template>
 
 <script setup>
 defineOptions({
   name: 'VMenu',
 })
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import VWalletDialog from '@/components/VWalletDialog/index.vue'
-import useWeb3 from '@/hooks/useWeb3.js'
-const { captionAccount, contractLogin, formatStringWithPlaceholder } = useWeb3()
 const router = useRouter()
 const route = useRoute()
-import { useAddressCounterStore } from '@/stores/user.js'
-import { ElMessageBox, ElMessage, ElLoading } from 'element-plus'
-
-const useAddressCounter = useAddressCounterStore()
-const walletDialogRef = ref()
-const walletAddres = computed(() => {
-  return useAddressCounter.userPrincipal;
-});
-//点击登录
-const LOGO = async () => {
-  const loadingInstance = ElLoading.service({ fullscreen: true, text: 'Loading...', background: 'rgba(122, 122, 122, 0.8)' })
-  await contractLogin();
-  loadingInstance.close()
-}
 const navList = computed(() => {
   return [
     {
@@ -87,25 +63,7 @@ const navList = computed(() => {
     },
   ]
 })
-//点击推出登录
-const LOGOOUT = async () => {
-  ElMessageBox.confirm('你确定要退出登录吗？', '', {
-    confirmButtonText: '确定退出', // 自定义确定按钮文字
-    cancelButtonText: '取消操作',  // 自定义取消按钮文字
-    type: 'warning',               // 提示框类型，可选（如 warning、success、info、error）
-  })
-    .then(() => {
-      useAddressCounter.setLogoout()
-    })
-    .catch(() => {
-      // catch error
-    })
-}
 const onClick = (item) => {
-  if (!useAddressCounter.userPrincipal) return ElMessage({
-    message: '请先登录',
-    type: 'warning',
-  })
   if (!item.path) return
   router.push(item.path)
 }

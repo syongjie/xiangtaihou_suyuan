@@ -9,9 +9,6 @@
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vitePluginRequireTransform from 'vite-plugin-require-transform'
-import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
-import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill'
-import rollupNodePolyFill from 'rollup-plugin-node-polyfills'
 import path from 'path';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 // import vueDevTools from 'vite-plugin-vue-devtools';
@@ -45,21 +42,13 @@ export default defineConfig(({ mode }) => {
         define: { ...processEnvValues },
         resolve: {
             alias: {
-              '@': path.resolve(__dirname, './src'),
-              buffer: 'buffer', // ���Ӷ� buffer �ı���֧��
-            },
+              '@': path.resolve(__dirname, './src')
+            }
           },
           
         optimizeDeps: {
             esbuildOptions: {
-                define: { global: 'globalThis' },
-                plugins: [
-                    NodeGlobalsPolyfillPlugin({
-                        process: true,
-                        buffer: true
-                    }),
-                    NodeModulesPolyfillPlugin()
-                ]
+                define: { global: 'globalThis' }
             }
         },
           server: {
@@ -68,18 +57,13 @@ export default defineConfig(({ mode }) => {
             port: 9001,
             proxy: {
             '/api': {
-                target: 'https://ic0.app/',
-                changeOrigin: true,
+                target: 'http://localhost:3000',
+                changeOrigin: true
               }
             }
           },
         build: {
-            minify: false,
-            rollupOptions: {
-                plugins: [
-                    rollupNodePolyFill()
-                ]
-            }
+            minify: false
         }
     }
 })
