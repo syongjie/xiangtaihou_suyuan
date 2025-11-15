@@ -66,15 +66,92 @@ const beefJerkyData = {
 };
 
 export const traceService = {
+  // 基础信息（快速加载）
+  async getProductBasicInfo(productId) {
+    try {
+      // 模拟数据返回 - 仅返回基础信息
+      const baseData = beefJerkyData[productId] || beefJerkyData['20231022A01'];
+      return {
+        productName: baseData.productName,
+        shelfLife: baseData.shelfLife,
+        netWeight: baseData.netWeight,
+        sellingPoint: baseData.sellingPoint,
+        storageMethod: baseData.storageMethod,
+        consumptionMethod: baseData.consumptionMethod,
+        productDetails: baseData.productDetails
+      };
+    } catch (error) {
+      throw new Error(`获取产品基础信息失败: ${error.message}`);
+    }
+  },
+  
+  // 获取产品详细信息
+  async getProductDetails(productId) {
+    try {
+      // 模拟数据返回 - 返回详细信息
+      const baseData = beefJerkyData[productId] || beefJerkyData['20231022A01'];
+      return {
+        inspectionReports: baseData.inspectionReports,
+        companyInfo: baseData.companyInfo,
+        manufacturerInfo: baseData.manufacturerInfo,
+        upstreamInfo: baseData.upstreamInfo
+      };
+    } catch (error) {
+      throw new Error(`获取产品详细信息失败: ${error.message}`);
+    }
+  },
+  
+  // 获取评论数据
+  async getProductComments(productId) {
+    try {
+      // 模拟评论数据
+      return [
+        {
+          id: '1',
+          username: '李先生',
+          avatar: '/imgs/Group19120@3x.png',
+          rating: 5,
+          content: '肉质非常好，口感鲜嫩，值得推荐！',
+          time: '2023-11-10 14:30',
+          recommend: '推荐'
+        },
+        {
+          id: '2',
+          username: '张女士',
+          avatar: '/imgs/image26@3x.png',
+          rating: 4,
+          content: '味道不错，分量也很足，下次还会购买。',
+          time: '2023-11-05 10:15',
+          recommend: '推荐'
+        }
+      ];
+    } catch (error) {
+      throw new Error(`获取产品评论失败: ${error.message}`);
+    }
+  },
+  
+  // 获取评分摘要
+  async getProductRatings(productId) {
+    try {
+      // 模拟评分数据
+      return {
+        average: 4.5,
+        count: 128,
+        fiveStar: 85,
+        fourStar: 30,
+        threeStar: 10,
+        twoStar: 2,
+        oneStar: 1
+      };
+    } catch (error) {
+      throw new Error(`获取产品评分失败: ${error.message}`);
+    }
+  },
+  
+  // 原始方法保持兼容
   async getProductTrace(productId) {
     try {
-      // 在实际项目中，这里应该是真实的API调用：
-      // const response = await fetch(`${baseURL}/trace/${productId}`);
-      // if (!response.ok) throw new Error('获取产品信息失败');
-      // return await response.json();
-      
-      // 模拟API请求延迟
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // 移除模拟延迟以提高性能
       
       // 模拟数据返回
       if (beefJerkyData[productId]) {
@@ -88,6 +165,11 @@ export const traceService = {
     } catch (error) {
       throw new Error(`获取产品溯源信息失败: ${error.message}`);
     }
+  },
+  
+  // 添加通过产品码获取数据的方法（兼容现有代码）
+  async getProductTraceByCode(productCode) {
+    return this.getProductTrace(productCode);
   },
 
   // 提交评价

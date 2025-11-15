@@ -6,33 +6,27 @@
  * @FilePath: \DCBBPrivate\src\api\index.js
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
-// src/services/traceService.js
-const baseURL = import.meta.env.VITE_API_BASE_URL;
+// 导入统一的HTTP请求工具
+import { http } from '@/utils/request';
 
 export const traceService = {
   // 根据产品ID获取溯源信息
   async getProductTrace(productId) {
-    try {
-      const response = await fetch(`${baseURL}/trace/${productId}`);
-      if (!response.ok) {
-        throw new Error('获取产品信息失败');
-      }
-      return await response.json();
-    } catch (error) {
-      throw new Error(`网络请求失败: ${error.message}`);
-    }
+    return await http.get(`/trace/${productId}`);
+  },
+  // 根据商品码获取溯源信息
+  async getProductTraceByCode(code) {
+    return await http.get('/trace/product/verify', { code });
   },
 
   // 获取公司信息
   async getCompanyInfo(companyId) {
-    const response = await fetch(`${baseURL}/company/${companyId}`);
-    return await response.json();
+    return await http.get(`/company/${companyId}`);
   },
 
   // 获取生产流程
   async getProductionProcess(productId) {
-    const response = await fetch(`${baseURL}/production/${productId}`);
-    return await response.json();
+    return await http.get(`/production/${productId}`);
   }
 };
 
@@ -50,12 +44,7 @@ export const commentService = {
       formData.append('video', payload.video)
     }
 
-    return fetch(`${baseURL}/comment`, {
-      method: 'POST',
-      body: formData
-    }).then(res => {
-      if (!res.ok) throw new Error('提交失败')
-      return res.json()
-    })
+    // 使用统一的上传方法
+    return await http.upload('/comment', formData);
   }
 }

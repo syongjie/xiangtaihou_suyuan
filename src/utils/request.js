@@ -214,11 +214,9 @@ import axios from 'axios';
 import { storage } from '@/utils/storage';
 import router from '@/router';
 
-//测试
-// const baseURL = 'https://testapi.bitcoinbanks.biz/api';
-// const baseURL = 'http://192.168.2.4:9225/api';
-// 正式
-const baseURL = import.meta.env.VITE_API_BASE_URL || 'https://api.bitcoinbanks.biz/api';
+// API基础URL配置
+// const baseURL = import.meta.env.VITE_API_BASE_URL || 'https://testapi.xiangtaihou-food.com/verify';
+const baseURL = import.meta.env.VITE_API_BASE_URL || 'https://h5.xiangtaihou-food.com/verify';
 console.log('API Base URL:', baseURL);
 
 const timeout = Number(import.meta?.env?.VITE_API_TIMEOUT || 15000);

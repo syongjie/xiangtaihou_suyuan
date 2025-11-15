@@ -25,6 +25,11 @@ const routes = [
     props: true
   },
   {
+    path: '/verify',
+    name: 'TraceResultWithCode',
+    component: TraceResult
+  },
+  {
     path: '/:pathMatch(.*)*', // 404 页面处理
     redirect: '/'  
   }
