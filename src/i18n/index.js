@@ -14,7 +14,7 @@ import ko from './locales/ko.json'
 import th from './locales/th.json'
 import zhTW from './locales/zh-TW.json'
 
-const savedLocale = localStorage.getItem('longe-vity-locale') || 'en'
+const savedLocale = localStorage.getItem('locale') || 'en'
 
 const messages = {
   zh,

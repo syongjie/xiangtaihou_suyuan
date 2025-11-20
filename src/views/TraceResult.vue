@@ -1,123 +1,118 @@
 <template>
   <div class="xiangtaihou-trace">
+
+
     <!-- 头部（含产品图） -->
     <header class="page-header">
       <div style="display: flex; justify-content: space-between; height: 60px; align-items: center;">
         <img style="width: 30px; height: 30px;" src="@/assets/suyuan/首页_slices/返回@3x(1).png" alt="">
         <div>
-          <h3>{{ productData.productName }}</h3>
-          <span>fw.xolo.kim</span>
+          <h3>{{ t('traceResult.productName') }}</h3>
+          <span>{{ t('traceResult.website') }}</span>
         </div>
-        <img style="width: 30px; height: 30px; margin-right: 10px;" src="@/assets/suyuan/首页_slices/更多@3x.png" alt="">
+        <div class="more-menu">
+          <div class="language-switcher">
+            <img class="lang-btn" @click="toggleLanguageMenu($event)" src="@/assets/suyuan/lg1.png" alt="">
+            <div v-if="showLanguageMenu" class="language-menu">
+              <button v-for="lang in languages" :key="lang.value"
+                :class="['lang-btn', { active: currentLang === lang.value }]" @click="switchLanguage(lang.value)">
+                {{ t('traceResult.' + lang.labelKey) }}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
       <!-- 产品图片相册 -->
       <div class="product-gallery" @click="openProductGallery">
-        <img style="height: 300px; width: 100%; object-fit: cover;" :src="productImage" alt="八不加精品酱牛肉" class="product-img" />
+        <img style="height: 300px; width: 100%; object-fit: cover;" :src="productImage"
+          :alt="t('traceResult.productImageAlt')" class="product-img" />
         <!-- <div class="gallery-indicator" v-if="productGallery.length > 1">
           <span class="current-index">{{ currentImageIndex + 1 }}</span>
           <span class="total-count">/{{ productGallery.length }}</span>
         </div>
         <div class="gallery-icon" v-if="productGallery.length > 1">
-          <img src="@/assets/suyuan/首页_slices/更多@3x.png" alt="相册" style="width: 24px; height: 24px;" />
+          <img src="@/assets/suyuan/首页_slices/更多@3x.png" :alt="t('traceResult.photoAlbum')" style="width: 24px; height: 24px;" />
         </div> -->
       </div>
     </header>
 
     <!-- 产品标题 -->
     <section class="product-title">
-      <h2>{{ productData.productName }}</h2>
-      <p class="subtitle">Premium Braised Beef Jerky</p>
+      <h2>{{ t('traceResult.productName') }}</h2>
+      <p class="subtitle">{{ t('traceResult.productSubtitle') }}</p>
       <div class="product-basic-info">
         <div class="info-item" style="background-color: #FFFFF2EF; padding: 5px; border-radius: 5px;">
-          <span style="color: #F53F3F;" class="label">保质期</span>
-          <span style="color: #F53F3F;" class="value">{{ productData.shelfLife }}</span>
+          <span style="color: #F53F3F;" class="label">{{ t('traceResult.shelfLife') }}</span>
+          <span style="color: #F53F3F;" class="value">{{ t('traceResult.shelfLifeValue') }}</span>
         </div>
         <div class="info-item" style="background-color: #FFFFF2EF; padding: 5px; border-radius: 5px;">
-          <span style="color: #F53F3F;" class="label">净含量</span>
-          <span style="color: #F53F3F;" class="value">{{ productData.netWeight }}</span>
+          <span style="color: #F53F3F;" class="label">{{ t('traceResult.netWeight') }}</span>
+          <span style="color: #F53F3F;" class="value">{{ t('traceResult.netWeightValue') }}</span>
         </div>
-        <button class="buy-btn">立即购买</button>
+        <button class="buy-btn">{{ t('traceResult.buyNow') }}</button>
       </div>
     </section>
 
     <!-- 导航标签 -->
     <nav class="nav-tabs sticky-top">
-      <div
-        v-for="tab in tabs"
-        :key="tab.id"
-        class="nav-tab"
-        :class="{ active: activeTab === tab.id }"
-        @click="switchTab(tab.id)"
-      >
-        {{ tab.name }}
+      <div v-for="tab in tabs" :key="tab.id" class="nav-tab" :class="{ active: activeTab === tab.id }"
+        @click="switchTab(tab.id)">
+        {{ t('traceResult.' + tab.id) }}
       </div>
     </nav>
 
     <!-- 主要内容 -->
     <main class="main-content">
       <!-- 基础信息快速显示，不使用全局loading阻塞 -->
-      
+
       <!-- 错误提示（保留但很少会触发） -->
       <div v-if="error" class="error-state">
         <p>{{ error }}</p>
-        <button @click="fetchProductData" class="retry-btn">重新加载</button>
+        <button @click="fetchProductData" class="retry-btn">{{ t('traceResult.retry') }}</button>
       </div>
 
       <!-- 基础信息 -->
-      <section id="info" class="content-section">
-        <h4 class="section-title">基础信息</h4>
+      <section id="basicInfo" class="content-section">
+        <h4 class="section-title">{{ t('traceResult.basicInfo') }}</h4>
         <div class="info-grid" style="background-color: #f9f8fe;">
-          <div class="info-card" v-for="item in productData.productDetails" :key="item.label">
-            <div class="info-label">{{ item.label }}</div>
-            <div
-              class="info-value"
-              style="width: 200px;"
-              :class="{ clickable: item.value === '点击查看' }"
-              @click="item.value === '点击查看' ? viewReport(item) : null"
-            >
+          <div class="info-card" v-for="item in productData.productDetails" :key="item.labelKey">
+            <div class="info-label">{{ t('traceResult.' + item.labelKey) }}</div>
+            <div class="info-value" :class="{ clickable: item.value === '点击查看' }"
+              @click="item.value === '点击查看' ? viewReport(item) : null">
               {{ item.value }}
-              <img
-                v-if="item.value === '点击查看'"
-                style="width: 20px; position: relative; top: 5px;"
-                src="/imgs/image-02@3x.png"
-                alt=""
-              />
+              <img v-if="item.value === '点击查看'" style="width: 20px; position: relative; top: 5px;"
+                src="/imgs/image-02@3x.png" alt="" />
             </div>
           </div>
         </div>
       </section>
 
       <!-- 检验报告 -->
-      <section id="inspection" class="content-section">
-        <h4 class="section-title">检验报告</h4>
+      <section id="inspectionReport" class="content-section">
+        <h4 class="section-title">{{ t('traceResult.inspectionReport') }}</h4>
         <div class="inspection-reports">
           <div class="report-grid">
-            <div class="report-item" style="position: relative;" v-for="(report, index) in productData.inspectionReports" :key="index">
-              <img :src="report.imgUrl" alt="检验报告" class="report-img" />
-              <button class="view-btn" style="position: absolute; bottom: 5px; right: 5px;" @click="viewReport(report, index)">查看</button>
+            <div class="report-item" style="position: relative;"
+              v-for="(report, index) in productData.inspectionReports" :key="index">
+              <img :src="report.imgUrl" :alt="t('traceResult.inspectionReport')" class="report-img" />
+              <button class="view-btn" style="position: absolute; bottom: 5px; right: 5px;"
+                @click="viewReport(report, index)">{{ t('traceResult.view') }}</button>
             </div>
           </div>
         </div>
       </section>
 
       <!-- 公司信息 -->
-      <section id="company" class="content-section">
-        <h4 class="section-title">公司信息</h4>
+      <section id="companyInfo" class="content-section">
+        <h4 class="section-title">{{ t('traceResult.companyInfo') }}</h4>
         <div class="company-info">
           <div class="company-media">
             <!-- 公司宣传：视频 / 图片 通用 -->
             <div class="media-content" :class="{ video: companyMedia.type === 'video' }">
               <!-- ① 视频模式 -->
               <template v-if="companyMedia.type === 'video'">
-                <video
-                  ref="companyVideo"
-                  :src="companyMedia.url"
-                  :poster="companyMedia.poster"
-                  class="company-video"
-                  @play="onVideoPlay"
-                  @pause="onVideoPause"
-                  @ended="onVideoEnd"
-                ></video>
+                <video ref="companyVideo" :src="companyMedia.url" :poster="companyMedia.poster" class="company-video"
+                  @play="onVideoPlay" @pause="onVideoPause" @ended="onVideoEnd"></video>
                 <!-- 播放按钮覆盖层 -->
                 <div v-if="!videoPlaying" class="play-overlay" @click="playCompanyVideo">
                   <img src="/imgs/play-01@3x.png" class="play-icon" />
@@ -125,31 +120,19 @@
               </template>
 
               <!-- ② 图片模式 -->
-              <img
-                v-else
-                :src="companyMedia.url"
-                class="company-image"
-                @click="viewCompanyMedia"
-              />
+              <img v-else :src="companyMedia.url" class="company-image" @click="viewCompanyMedia" />
             </div>
           </div>
           <div class="info-grid">
             <div class="info-card" v-for="item in productData.manufacturerInfo" :key="item.label">
               <div style="display: flex;">
-                <img
-                  v-if="item.label === '企业名称'"
-                  style="width: 20px; position: relative; top: -3px;"
-                  src="/imgs/bar-group-03@3x.png"
-                  alt=""
-                />
-                <img
-                  v-else-if="item.label === '统一社会信用代码'"
-                  style="width: 20px; position: relative; top: -3px;"
-                  src="/imgs/shield-check@3x.png"
-                  alt=""
-                />
-                <img v-else style="width: 20px; position: relative; top: -3px;" src="/imgs/phone-call-01@3x.png" alt="" />
-                <div class="info-label">{{ item.label }}</div>
+                <img v-if="item.labelKey === 'companyName'" style="width: 20px; position: relative; top: -3px;"
+                  src="/imgs/bar-group-03@3x.png" alt="" />
+                <img v-else-if="item.labelKey === 'socialCreditCode'"
+                  style="width: 20px; position: relative; top: -3px;" src="/imgs/shield-check@3x.png" alt="" />
+                <img v-else style="width: 20px; position: relative; top: -3px;" src="/imgs/phone-call-01@3x.png"
+                  alt="" />
+                <div class="info-label">{{ t('traceResult.' + item.labelKey) }}</div>
               </div>
               <div class="info-value" style="text-align: left;">{{ item.value }}</div>
             </div>
@@ -158,12 +141,14 @@
           <div class="qualification-section">
             <div style="display: flex;">
               <img style="width: 30px; position: relative; top: -5px;" src="/imgs/Frame@3x(1).png" alt="" />
-              <h4>公司资质</h4>
+              <h4>{{ t('traceResult.companyQualifications') }}</h4>
             </div>
             <div class="qualification-grid">
-              <div class="qualification-item" style="position: relative;" v-for="(qual, index) in productData.companyQualifications" :key="index">
-                <img :src="qual.imgUrl" alt="公司资质" class="qual-img" />
-                <button class="view-btn" style="position: absolute; bottom: 15px; right: 5px;" @click="viewQualification(qual, index)">查看</button>
+              <div class="qualification-item" style="position: relative;"
+                v-for="(qual, index) in productData.companyQualifications" :key="index">
+                <img :src="qual.imgUrl" :alt="t('traceResult.companyQualifications')" class="qual-img" />
+                <button class="view-btn" style="position: absolute; bottom: 15px; right: 5px;"
+                  @click="viewQualification(qual, index)">{{ t('traceResult.view') }}</button>
               </div>
             </div>
           </div>
@@ -172,43 +157,46 @@
 
       <!-- 生产厂家 -->
       <section id="manufacturer" class="content-section">
-        <h4 class="section-title">生产厂家</h4>
+        <h4 class="section-title">{{ t('traceResult.manufacturer') }}</h4>
         <div class="identity-section">
           <div style="display: flex;">
-            <div style="margin-right: 10px; width: 3px; height: 16px; margin-top: 5px; background-color: #F53F3F;"></div>
-            <h4>主体身份</h4>
+            <div style="margin-right: 10px; width: 3px; height: 16px; margin-top: 5px; background-color: #F53F3F;">
+            </div>
+            <h4>{{ t('traceResult.identity') }}</h4>
           </div>
           <div class="info-item">
-            <span class="label">企业名称：</span>
+            <span class="label">{{ t('traceResult.companyName') }}：</span>
             <span class="value" style="color: #666;">{{ productData.companyInfo.fullName }}</span>
           </div>
           <div class="info-item">
-            <span class="label">统一社会信用代码：</span>
+            <span class="label">{{ t('traceResult.socialCreditCode') }}：</span>
             <span class="value" style="color: #666;">{{ productData.companyInfo.creditCode }}</span>
           </div>
           <div class="info-item">
-            <span class="label">法定负责人：</span>
+            <span class="label">{{ t('traceResult.legalRepresentative') }}：</span>
             <span class="value" style="color: #666;">{{ productData.companyInfo.legalRepresentative || '待完善' }}</span>
           </div>
         </div>
 
         <div class="contact-section">
           <div style="display: flex;">
-            <div style="margin-right: 10px; width: 3px; height: 16px; margin-top: 5px; background-color: #F53F3F;"></div>
-            <h4>联系方式</h4>
+            <div style="margin-right: 10px; width: 3px; height: 16px; margin-top: 5px; background-color: #F53F3F;">
+            </div>
+            <h4>{{ t('traceResult.contactInfo') }}</h4>
           </div>
           <div class="info-item">
-            <span class="label">联系电话：</span>
+            <span class="label">{{ t('traceResult.phone') }}：</span>
             <span class="value" style="color: #666;">{{ productData.companyInfo.phone }}</span>
           </div>
           <div class="info-item">
-            <span class="label">官方网站：</span>
+            <span class="label">{{ t('traceResult.website') }}：</span>
             <span class="value">
-              <a :href="'http://' + productData.companyInfo.website" target="_blank">{{ productData.companyInfo.website }}</a>
+              <a :href="'http://' + productData.companyInfo.website" target="_blank">{{ productData.companyInfo.website
+                }}</a>
             </span>
           </div>
           <div class="info-item">
-            <span class="label">电子邮箱：</span>
+            <span class="label">{{ t('traceResult.email') }}：</span>
             <span class="value" style="color: #666;">{{ productData.companyInfo.email }}</span>
           </div>
           <div class="info-item">
@@ -219,55 +207,58 @@
       </section>
 
       <!-- 上游生产 -->
-      <section id="upstream" class="content-section">
-        <h4 class="section-title">上游生产</h4>
+      <section id="upstreamProduction" class="content-section">
+        <h4 class="section-title">{{ t('traceResult.upstreamProduction') }}</h4>
         <div class="upstream-info">
           <div style="display: flex;">
-            <div style="margin-right: 10px; width: 3px; height: 16px; margin-top: 5px; background-color: #F53F3F;"></div>
-            <h4>主体身份</h4>
+            <div style="margin-right: 10px; width: 3px; height: 16px; margin-top: 5px; background-color: #F53F3F;">
+            </div>
+            <h4>{{ t('traceResult.identity') }}</h4>
           </div>
           <div class="info-grid">
-            <div class="info-card" v-for="item in productData.upstreamInfo" :key="item.label">
-              <div class="info-label">{{ item.label }}：</div>
+            <div class="info-card" v-for="item in productData.upstreamInfo" :key="item.labelKey">
+              <div class="info-label">{{ t('traceResult.' + item.labelKey) }}：</div>
               <div class="info-value" style="color: #666;">{{ item.value }}</div>
             </div>
           </div>
         </div>
         <div class="upstream-info">
           <div style="display: flex;">
-            <div style="margin-right: 10px; width: 3px; height: 16px; margin-top: 5px; background-color: #F53F3F;"></div>
-            <h4>联系方式</h4>
+            <div style="margin-right: 10px; width: 3px; height: 16px; margin-top: 5px; background-color: #F53F3F;">
+            </div>
+            <h4>{{ t('traceResult.contactInfo') }}</h4>
           </div>
           <div class="info-grid">
-            <div class="info-card" v-for="item in productData.upstreamInfo1" :key="item.label">
-              <div class="info-label">{{ item.label }}：</div>
+            <div class="info-card" v-for="item in productData.upstreamInfo1" :key="item.labelKey">
+              <div class="info-label">{{ t('traceResult.' + item.labelKey) }}：</div>
               <div class="info-value" style="color: #666;">{{ item.value }}</div>
             </div>
           </div>
         </div>
       </section>
-       <!-- 视频播放 -->
+      <!-- 视频播放 -->
       <section class="video-player-section" v-if="productData.videoUrl">
-        <video :src="productData.videoUrl" controls class="product-video" poster="https://via.placeholder.com/400x225?text=视频封面"></video>
+        <video :src="productData.videoUrl" controls class="product-video"
+          :poster="`https://via.placeholder.com/400x225?text=${t('traceResult.videoCover')}`"></video>
       </section>
       <!-- 评论互动 -->
       <section id="comments" class="content-section">
-        <h4 class="section-title">评论互动</h4>
+        <h4 class="section-title">{{ t('traceResult.comments') }}</h4>
         <div class="comments-section">
           <div class="rating-summary">
             <div class="rating-item">
-              <span class="rating-label">品质</span>
+              <span class="rating-label">{{ t('traceResult.quality') }}</span>
               <div class="stars">
                 <span v-for="n in 5" :key="n" class="star" :class="{ filled: n <= 4 }">★</span>
               </div>
-              <span class="rating-text">好</span>
+              <span class="rating-text">{{ t('traceResult.good') }}</span>
             </div>
             <div class="rating-item">
-              <span class="rating-label">口感</span>
+              <span class="rating-label">{{ t('traceResult.taste') }}</span>
               <div class="stars">
                 <span v-for="n in 5" :key="n" class="star" :class="{ filled: n <= 5 }">★</span>
               </div>
-              <span class="rating-text">非常好</span>
+              <span class="rating-text">{{ t('traceResult.excellent') }}</span>
             </div>
           </div>
 
@@ -276,36 +267,34 @@
               <input type="radio" name="recommend" value="推荐" v-model="recommendType" />
               <img v-if="recommendType === '推荐'" style="width: 20px;" src="/imgs/1.默认@3x.png" alt="" />
               <img v-else style="width: 20px;" src="/imgs/1.默认@3x(1).png" alt="" />
-              <span>推荐</span>
+              <span>{{ t('traceResult.recommend') }}</span>
             </label>
             <label class="interaction-label">
               <input type="radio" name="recommend" value="不推荐" v-model="recommendType" />
               <img v-if="recommendType === '不推荐'" style="width: 20px;" src="/imgs/1.默认@3x.png" alt="" />
               <img v-else style="width: 20px;" src="/imgs/1.默认@3x(1).png" alt="" />
-              不推荐
+              {{ t('traceResult.notRecommend') }}
             </label>
           </div>
 
           <div class="comment-input">
-            <textarea
-              v-model="commentText"
-              placeholder="请描述你的评价..."
-              maxlength="500"
-              class="comment-textarea"
-            ></textarea>
+            <textarea v-model="commentText" :placeholder="t('traceResult.commentPlaceholder')" maxlength="500"
+              class="comment-textarea"></textarea>
             <div class="char-count">{{ commentText.length }}/500</div>
           </div>
 
           <!-- 评论列表 -->
           <div class="comments-list" v-if="productData.comments && productData.comments.length > 0">
-            <h4 class="comments-list-title">用户评价 ({{ productData.comments.length }})</h4>
+            <h4 class="comments-list-title">{{ t('traceResult.userComments') }} ({{ productData.comments.length }})</h4>
             <div class="comment-item" v-for="comment in productData.comments" :key="comment.id">
               <div class="comment-header">
-                <img :src="comment.avatar" alt="用户头像" class="comment-avatar" />
+                <img :src="comment.avatar" :alt="t('traceResult.userAvatar')" class="comment-avatar" />
                 <div class="comment-user-info">
                   <div class="comment-username">{{ comment.username }}</div>
                   <div class="comment-rating">
-                    <span v-for="n in 5" :key="n" class="star" :class="{ filled: n <= comment.rating }">{{ comment.recommend === '推荐' ? '★' : '☆' }}</span>
+                    <span v-for="n in 5" :key="n" class="star" :class="{ filled: n <= comment.rating }">{{
+                      comment.recommend
+                      === '推荐' ? '★' : '☆' }}</span>
                     <span class="comment-recommend">{{ comment.recommend }}</span>
                   </div>
                 </div>
@@ -315,40 +304,31 @@
             </div>
           </div>
           <div v-else class="no-comments">
-            <p>暂无用户评价，快来发表第一条评价吧！</p>
+            <p>{{ t('traceResult.noComments') }}</p>
           </div>
 
           <!-- 上传视频 -->
           <div class="video-upload">
-            <p class="upload-hint">支持上传视频，且时长不得超过30s</p>
+            <p class="upload-hint">{{ t('traceResult.videoUploadHint') }}</p>
 
             <!-- 已选预览 -->
             <video v-if="uploadVideoUrl" :src="uploadVideoUrl" controls class="upload-preview"></video>
 
             <!-- 选择按钮 -->
-            <input
-              ref="videoFile"
-              type="file"
-              accept="video/*"
-              style="display: none"
-              @change="onVideoSelect"
-            />
+            <input ref="videoFile" type="file" accept="video/*" style="display: none" @change="onVideoSelect" />
             <div class="upload-btn" @click="chooseVideo">
               <img style="width: 30px;" src="/imgs/play-01@3x.png" alt="" />
-              <div>{{ uploadVideoUrl ? '重新选择' : '上传视频' }}</div>
+              <div>{{ uploadVideoUrl ? t('traceResult.resElect') : t('traceResult.uploadVideo') }}</div>
             </div>
           </div>
 
           <div class="suggestion-input">
-            <textarea
-              v-model="suggestionText"
-              placeholder="请输入您的改善建议..."
-              class="suggestion-textarea"
-            ></textarea>
+            <textarea v-model="suggestionText" :placeholder="t('traceResult.suggestionPlaceholder')"
+              class="suggestion-textarea"></textarea>
           </div>
 
           <button class="submit-btn" @click="submitComment" :disabled="submitting">
-            {{ submitting ? '提交中...' : '提交' }}
+            {{ submitting ? t('traceResult.submitting') : t('traceResult.submit') }}
           </button>
         </div>
       </section>
@@ -357,9 +337,34 @@
 </template>
 
 <script setup>
-import { traceService , commentService } from '@/api/index'
-import { getCurrentInstance, ref, onMounted, watch } from 'vue'
+import { traceService, commentService } from '@/api/index'
+import { getCurrentInstance, ref, onMounted, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+
+// 国际化支持
+const { t, locale } = useI18n()
+
+// 语言配置
+const languages = [
+  { labelKey: 'chinese', value: 'zh' },
+  { labelKey: 'traditionalChinese', value: 'zh-TW' },
+  { labelKey: 'english', value: 'en' }
+]
+
+const currentLang = computed(() => locale.value)
+const showLanguageMenu = ref(false)
+
+const switchLanguage = (lang) => {
+  locale.value = lang
+  localStorage.setItem('locale', lang)
+  showLanguageMenu.value = false // 选择语言后关闭菜单
+}
+
+const toggleLanguageMenu = (event) => {
+  event.stopPropagation(); // 阻止事件冒泡
+  showLanguageMenu.value = !showLanguageMenu.value;
+}
 
 const route = useRoute()
 // 优先从查询参数code获取商品码，兼容原有的路径参数productId
@@ -371,7 +376,7 @@ const productIdentifier = productCode
 const { proxy } = getCurrentInstance()
 
 /* ---------- 响应式数据 ---------- */
-const activeTab = ref('info')
+const activeTab = ref('basicInfo')
 // 使用更精细的加载状态管理
 const basicLoading = ref(false)
 const detailedLoading = ref(false)
@@ -405,15 +410,15 @@ const productData = ref({
   videoUrl: '/public/ff934ab7788ffd0ea4bb20f9c78fc3c6.mp4',   // ① 视频地址
 
   productDetails: [
-    { label: '产品认证', value: '地理标志' },
-    { label: '产品批次', value: '20231022A01' },
-    { label: '检测报告', value: '点击查看' },
-    { label: '上市日期', value: '2025.10.22' },
-    { label: '产地', value: '宁夏中宁' },
-    { label: '品牌', value: '品牌名称' },
-    { label: '产品卖点', value: '蒙古国草原散养牛' },
-    { label: '储存形式', value: '卫生、阴凉、通风、干燥处常温储藏、冷藏更佳' },
-    { label: '食用方法', value: '温火慢炖' }
+    { labelKey: 'certification', value: '地理标志' },
+    { labelKey: 'batchNumber', value: '20231022A01' },
+    { labelKey: 'detectionReport', value: '点击查看' },
+    { labelKey: 'launchDate', value: '2025.10.22' },
+    { labelKey: 'origin', value: '宁夏中宁' },
+    { labelKey: 'brand', value: '品牌名称' },
+    { labelKey: 'productFeatures', value: '蒙古国草原散养牛' },
+    { labelKey: 'storageMethod', value: '卫生、阴凉、通风、干燥处常温储藏、冷藏更佳' },
+    { labelKey: 'usageMethod', value: '温火慢炖' }
   ],
   inspectionReports: [
     { imgUrl: '/imgs/Group19120@3x.png' },
@@ -437,31 +442,38 @@ const productData = ref({
     { imgUrl: '/imgs/Group19126@3x.png' }
   ],
   manufacturerInfo: [
-    { label: '企业名称', value: '香港祥泰厚副食品集团有限公司' },
-    { label: '统一社会信用代码', value: '91410100MAD9K99BXY' },
-    { label: '联系电话', value: '15346573661' }
+    { labelKey: 'companyName', value: '香港祥泰厚副食品集团有限公司' },
+    { labelKey: 'socialCreditCode', value: '91410100MAD9K99BXY' },
+    { labelKey: 'phone', value: '15346573661' }
   ],
   upstreamInfo: [
-    { label: '企业名称', value: '香港祥泰厚副食品集团有限公司' },
-    { label: '统一社会信用代码', value: '91410100MAD9K99BXY' },
-    { label: '法定负责人', value: '待完善' }
+    { labelKey: 'companyName', value: '香港祥泰厚副食品集团有限公司' },
+    { labelKey: 'socialCreditCode', value: '91410100MAD9K99BXY' },
+    { labelKey: 'legalRepresentative', value: '待完善' }
   ],
   upstreamInfo1: [
-    { label: '联系电话', value: 'Jas Su: +86 15346573661' },
-    { label: '官方网站', value: 'www.xiangtaihou.com' },
-    { label: '电子邮箱', value: 'xiangtaihou@yeah.net（通用）' },
-    { label: '电子邮箱', value: '15346573661@163.com（SU）' }
+    { labelKey: 'phone', value: 'Jas Su: +86 15346573661' },
+    { labelKey: 'website', value: 'www.xiangtaihou.com' },
+    { labelKey: 'email', value: 'xiangtaihou@yeah.net（通用）' },
+    { labelKey: 'email', value: '15346573661@163.com（SU）' }
   ]
 })
 
 const tabs = ref([
-  { id: 'info', name: '基础信息' },
-  { id: 'inspection', name: '检验报告' },
-  { id: 'company', name: '公司信息' },
-  { id: 'manufacturer', name: '生产厂家' },
-  { id: 'upstream', name: '上游生产' },
-  { id: 'comments', name: '评论互动' }
+  { id: 'basicInfo' },
+  { id: 'inspectionReport' },
+  { id: 'companyInfo' },
+  { id: 'manufacturer' },
+  { id: 'upstreamProduction' },
+  { id: 'comments' }
 ])
+
+/* ---------- 监听语言变化，实时更新标签名 ---------- */
+watch(() => locale.value, () => {
+  // 语言变化时不需要特殊处理标签名，因为现在模板中直接使用t函数
+  // 每次渲染都会根据当前语言获取最新翻译
+  console.log('语言变化:', locale.value)
+})
 
 /* ---------- viewer 统一封装 ---------- */
 const openProductGallery = () => {
@@ -477,9 +489,9 @@ const companyVideo = ref(null) // template ref
 
 /* 播放/暂停/结束 回调 */
 const playCompanyVideo = () => companyVideo.value?.play()
-const onVideoPlay  = () => videoPlaying.value = true
+const onVideoPlay = () => videoPlaying.value = true
 const onVideoPause = () => videoPlaying.value = false
-const onVideoEnd   = () => videoPlaying.value = false
+const onVideoEnd = () => videoPlaying.value = false
 
 /* 图片预览 */
 const viewCompanyMedia = () => {
@@ -499,25 +511,25 @@ const viewQualification = (_, idx) => {
 /* ---------- 业务函数 ---------- */
 const switchTab = (tabId) => {
   activeTab.value = tabId
-  
+
   // 加载对应标签页的数据
   const tab = tabs.value.find(t => t.id === tabId)
   if (tab) {
     loadTabData(tab.name)
   }
-  
+
   // 获取目标元素
   const targetElement = document.getElementById(tabId)
   if (targetElement) {
     // 保存原始body的padding-top
     const originalPadding = document.body.style.paddingTop;
-    
+
     // 临时添加200px的padding-top到body，这样scrollIntoView会考虑这个偏移
     document.body.style.paddingTop = '200px';
-    
+
     // 使用scrollIntoView滚动到目标元素
     targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    
+
     // 滚动完成后移除临时padding
     setTimeout(() => {
       document.body.style.paddingTop = originalPadding;
@@ -526,7 +538,7 @@ const switchTab = (tabId) => {
 }
 
 /* 上传相关 */
-const videoFile   = ref(null)        // file input ref
+const videoFile = ref(null)        // file input ref
 const uploadVideoUrl = ref('')       // 本地预览地址
 
 const chooseVideo = () => videoFile.value.click()
@@ -540,7 +552,7 @@ const onVideoSelect = (e) => {
   video.onloadedmetadata = () => {
     window.URL.revokeObjectURL(video.src) // 释放内存
     if (video.duration > 30) {
-      alert('视频时长不能超过 30 秒')
+      alert(t('traceResult.videoTooLong'))
       uploadVideoUrl.value = ''
       return
     }
@@ -556,8 +568,8 @@ const onVideoSelect = (e) => {
 
 //   /* 时长 & 大小校验 */
 //   const duration = await getVideoDuration(file)
-//   if (duration > 30) return alert('视频时长不能超过 30 秒')
-//   if (file.size > 50 * 1024 * 1024) return alert('视频大小不能超过 50 MB')
+//   if (duration > 30) return alert(t('traceResult.videoTooLong'))
+//   if (file.size > 50 * 1024 * 1024) return alert(t('traceResult.videoTooLarge'))
 
 //   /* 构造 FormData */
 //   const fd = new FormData()
@@ -571,15 +583,15 @@ const onVideoSelect = (e) => {
 //     })
 //     uploadVideoUrl.value = data.url // 后端返回的可访问地址
 //   } catch (e) {
-//     alert('上传失败：' + e.message)
+//     alert(t('traceResult.uploadFailed') + ': ' + e.message)
 //   }
 // }
 
 const submitComment = async () => {
-  if (!commentText.value.trim()) return alert('请输入评价内容')
+  if (!commentText.value.trim()) return alert(t('traceResult.enterComment'))
   submitting.value = true
   await new Promise((r) => setTimeout(r, 1000))
-  alert('评价提交成功！')
+  alert(t('traceResult.commentSubmitted'))
   commentText.value = suggestionText.value = ''
   submitting.value = false
 
@@ -616,7 +628,7 @@ const loadDetailedInfo = async () => {
   try {
     // 模拟详细信息加载
     await new Promise(resolve => setTimeout(resolve, 500))
-    
+
     // 可以在这里根据需要加载更多详细数据
     if (!productData.value.comments) {
       productData.value.comments = [
@@ -688,7 +700,7 @@ const fetchProductData = async () => {
     // 模拟API调用
     await new Promise(resolve => setTimeout(resolve, 300))
     console.log('基础信息加载完成')
-    
+
     // 2. 在后台异步加载详细信息
     loadDetailedInfo()
   } catch (e) {
@@ -707,6 +719,26 @@ onMounted(() => {
   // 不设置loading为true，直接显示初始模拟数据
   // 然后异步加载实际数据
   fetchProductData()
+
+  // 点击外部关闭语言菜单
+  const closeLanguageMenu = (event) => {
+    const languageMenu = document.querySelector('.language-menu');
+    const langButton = document.querySelector('.language-switcher .lang-btn');
+
+    // 如果点击的不是语言菜单且不是语言按钮，则关闭菜单
+    if (languageMenu && langButton &&
+      !languageMenu.contains(event.target) &&
+      !langButton.contains(event.target)) {
+      showLanguageMenu.value = false;
+    }
+  };
+
+  document.addEventListener('click', closeLanguageMenu);
+
+  // 清理事件监听器
+  onUnmounted(() => {
+    document.removeEventListener('click', closeLanguageMenu);
+  });
 })
 
 // 组件卸载时的清理
@@ -715,19 +747,72 @@ onUnmounted(() => {
   if (uploadVideoUrl.value) {
     URL.revokeObjectURL(uploadVideoUrl.value)
   }
-  
+
   // 停止视频播放
   if (companyVideo.value) {
     companyVideo.value.pause()
     companyVideo.value.src = ''
   }
-  
+
   // 可以在这里添加其他清理逻辑，如取消正在进行的异步请求等
   console.log('组件已卸载，资源已清理')
 })
 </script>
 
 <style scoped>
+/* 语言切换样式 */
+.language-switcher {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  background: white;
+}
+
+.lang-btn {
+  padding: 6px 12px;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+  width: 60px;
+}
+
+.language-menu {
+  position: absolute;
+  top: 100%;
+  right: 15px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  min-width: 120px;
+}
+
+.language-menu .lang-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  border-bottom: 1px solid #f0f0f0;
+  border-radius: 0;
+}
+
+.language-menu .lang-btn:last-child {
+  border-bottom: none;
+}
+
+.lang-btn:hover {
+  background: #f5f5f5;
+}
+
+.lang-btn.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
 .upload-preview {
   width: 100%;
   max-height: 200px;
@@ -739,8 +824,9 @@ onUnmounted(() => {
   margin: 15px;
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0,0,0,.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .1);
 }
+
 .product-video {
   width: 100%;
   max-height: 240px;
@@ -767,7 +853,7 @@ onUnmounted(() => {
 .play-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,.35);
+  background: rgba(0, 0, 0, .35);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -845,6 +931,54 @@ onUnmounted(() => {
   filter: brightness(100);
 }
 
+/* 基础信息响应式布局 */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+/* 确保在不同屏幕尺寸下每行最多显示两个信息卡 */
+@media (min-width: 768px) {
+  .info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .info-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.info-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #f0f0f0;
+}
+
+.info-label {
+  font-weight: 500;
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.info-value {
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: right;
+  word-break: break-word;
+}
+
 /* 页面基础样式 */
 .xiangtaihou-trace {
   max-width: 400px;
@@ -887,7 +1021,7 @@ onUnmounted(() => {
   padding: 10px 10px;
 }
 
-.section-title{
+.section-title {
   margin: 10px 0;
 }
 
@@ -958,8 +1092,13 @@ onUnmounted(() => {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .tab-content {
@@ -968,8 +1107,15 @@ onUnmounted(() => {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .product-basic-info {
@@ -1039,34 +1185,6 @@ onUnmounted(() => {
   border-radius: 4px;
   font-size: 12px;
   cursor: pointer;
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 15px;
-}
-
-.info-card {
-  background: #f8f9fa;
-  padding: 10px;
-  border-radius: 6px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.info-label {
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 4px;
-}
-
-.info-value {
-  font-size: 14px;
-  color: #000000;
-  font-weight: 500;
-  text-align: right;
 }
 
 .selling-points,
@@ -1152,11 +1270,13 @@ onUnmounted(() => {
   padding: 10px 10px;
   border-radius: 10px;
 }
+
 .contact-section {
   background-color: #f8f9fa;
   padding: 10px 10px;
   border-radius: 10px;
 }
+
 .qualification-section {
   margin-bottom: 20px;
 }
@@ -1246,13 +1366,13 @@ onUnmounted(() => {
   font-size: 12px;
 }
 
-.interaction-label input:checked + .radio-icon {
+.interaction-label input:checked+.radio-icon {
   background: #ff5722;
   color: white;
   border-color: #ff5722;
 }
 
-.interaction-label input[value="不推荐"] + .radio-icon {
+.interaction-label input[value="不推荐"]+.radio-icon {
   border-color: #ccc;
   background: white;
   color: #666;
@@ -1413,8 +1533,9 @@ onUnmounted(() => {
   .xiangtaihou-trace {
     max-width: 100%;
   }
-  
-  .info-grid, .usage-info {
+
+  .info-grid,
+  .usage-info {
     grid-template-columns: 1fr;
   }
 }
